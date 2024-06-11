@@ -1,8 +1,17 @@
 from mmpose.apis import inference_topdown, init_model
 from mmpose.utils import register_all_modules
 import cv2
+import os
 from mmcv.image import imread
 from mmpose.registry import VISUALIZERS
+
+def get_image_list(path):
+    img_list = []
+    for file in os.listdir(path):
+        name, ext = os.path.splitext(file)
+        if ext == '.jpg' or ext == '.png':
+            img_list.append(file)
+    return img_list
 
 def main(cfg):
 
@@ -19,13 +28,19 @@ def main(cfg):
     config_file = cfg.config_file
     checkpoint_file = cfg.checkpoint_file
 
-    for i in range(0, 403):
-        img_path = cfg.img_path + str(i) + ".png"
+    img_list = get_image_list(cfg.img_path)
+
+    for img_name in img_list:
+        
+        img = cfg.img_path + img_name
+
+        img = imread(img, channel_order='rgb')
+        img = cv2.resize(img,(cfg.img_size_w, cfg.img_size_h))
 
         model = init_model(config_file, checkpoint_file, device='cuda:0', cfg_options=cfg_options)  # or device='cuda:0'
 
         # please prepare an image with person
-        results = inference_topdown(model, img_path)
+        results = inference_topdown(model, img)
         print(type(results[0]))
         print(len(results))
         #cv2.imshow("test", results)
@@ -39,8 +54,6 @@ def main(cfg):
         visualizer.set_dataset_meta(
             model.dataset_meta, skeleton_style=skeleton_style)
 
-
-        img = imread(img_path, channel_order='rgb')
         visualizer.add_datasample(
             'result',
             img,
@@ -50,4 +63,4 @@ def main(cfg):
             kpt_thr=kpt_thr,
             draw_heatmap=draw_heatmap,
             skeleton_style=skeleton_style,
-            out_file="output/"+ str(i) + " .png")
+            out_file=cfg.output_path + img_name)
