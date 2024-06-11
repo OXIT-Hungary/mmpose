@@ -2,6 +2,7 @@ from mmpose.apis import inference_topdown, init_model
 from mmpose.utils import register_all_modules
 import cv2
 import os
+import shutil
 from mmcv.image import imread
 from mmpose.registry import VISUALIZERS
 
@@ -28,10 +29,16 @@ def main(cfg):
     config_file = cfg.config_file
     checkpoint_file = cfg.checkpoint_file
 
+    if os.path.isdir(cfg.output_path):
+        shutil.rmtree(cfg.output_path)
+        os.makedirs(cfg.output_path, exist_ok=True)
+    else:
+        os.makedirs(cfg.output_path, exist_ok=True)
+
     img_list = get_image_list(cfg.img_path)
 
     for img_name in img_list:
-        
+
         img = cfg.img_path + img_name
 
         img = imread(img, channel_order='rgb')
