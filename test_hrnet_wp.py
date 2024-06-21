@@ -16,33 +16,37 @@ def get_image_list(path):
 
 def main(cfg):
 
-    radius = cfg.radius
-    kpt_thr = cfg.kpt_thr
-    draw_heatmap = cfg.draw_heatmap
-    thickness = cfg.thickness
-    alpha = cfg.alpha
-    skeleton_style = cfg.skeleton_style
+    parameters = cfg.submodules.mmpose.parameters
+    dataloader = cfg.submodules.mmpose.dataloader
+    datawriter = cfg.submodules.mmpose.datawriter
+
+    radius = parameters.radius
+    kpt_thr = parameters.kpt_thr
+    draw_heatmap = parameters.draw_heatmap
+    thickness = parameters.thickness
+    alpha = parameters.alpha
+    skeleton_style = parameters.skeleton_style
     cfg_options = dict(model=dict(test_cfg=dict(output_heatmaps=True)))
 
     register_all_modules()
 
-    config_file = cfg.config_file
-    checkpoint_file = cfg.checkpoint_file
+    config_file = dataloader.config_file
+    checkpoint_file = dataloader.checkpoint_file
 
-    if os.path.isdir(cfg.output_path):
-        shutil.rmtree(cfg.output_path)
-        os.makedirs(cfg.output_path, exist_ok=True)
+    if os.path.isdir(datawriter.output_path):
+        shutil.rmtree(datawriter.output_path)
+        os.makedirs(datawriter.output_path, exist_ok=True)
     else:
-        os.makedirs(cfg.output_path, exist_ok=True)
+        os.makedirs(datawriter.output_path, exist_ok=True)
 
-    img_list = get_image_list(cfg.img_path)
+    img_list = get_image_list(dataloader.img_path)
 
     for img_name in img_list:
 
-        img = cfg.img_path + img_name
+        img = dataloader.img_path + img_name
 
         img = imread(img, channel_order='rgb')
-        img = cv2.resize(img,(cfg.img_size_w, cfg.img_size_h))
+        img = cv2.resize(img,(parameters.img_size_w, parameters.img_size_h))
 
         model = init_model(config_file, checkpoint_file, device='cuda:0', cfg_options=cfg_options)  # or device='cuda:0'
 
@@ -70,4 +74,4 @@ def main(cfg):
             kpt_thr=kpt_thr,
             draw_heatmap=draw_heatmap,
             skeleton_style=skeleton_style,
-            out_file=cfg.output_path + img_name)
+            out_file=datawriter.output_path + img_name)
