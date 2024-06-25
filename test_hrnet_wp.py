@@ -14,6 +14,40 @@ def get_image_list(path):
             img_list.append(file)
     return img_list
 
+def main_init(cfg):
+    dataloader = cfg.submodules.mmpose.dataloader
+
+    cfg_options = dict(model=dict(test_cfg=dict(output_heatmaps=True)))
+    config_file = dataloader.config_file
+    checkpoint_file = dataloader.checkpoint_file
+
+    model = init_model(config_file, checkpoint_file, device='cuda:0', cfg_options=cfg_options)  # or device='cuda:0'
+
+    return model
+
+def main_eval(cfg, model, img):
+    parameters = cfg.submodules.mmpose.parameters
+    datawriter = cfg.submodules.mmpose.datawriter
+
+    radius = parameters.radius
+    kpt_thr = parameters.kpt_thr
+    draw_heatmap = parameters.draw_heatmap
+    thickness = parameters.thickness
+    alpha = parameters.alpha
+    skeleton_style = parameters.skeleton_style
+    
+    register_all_modules()
+
+    _img = cv2.resize(img,(parameters.img_size_w, parameters.img_size_h))
+
+    # please prepare an image with person
+    results = inference_topdown(model, _img)
+    #print(type(results[0]))
+    #print(len(results))
+    #print('-Pose estimated-')
+
+    return results
+
 def main(cfg):
 
     parameters = cfg.submodules.mmpose.parameters
