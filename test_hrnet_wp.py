@@ -31,29 +31,32 @@ def main_eval(cfg, model, img, bboxes):
 
     for idx, bbox in enumerate(bboxes):
 
-        cropped_img = img[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])]
+        if all(i >= 0 for i in bbox):
+            cropped_img = img[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])]
 
-        parameters = cfg.submodules.mmpose.parameters
-        datawriter = cfg.submodules.mmpose.datawriter
+            parameters = cfg.submodules.mmpose.parameters
+            datawriter = cfg.submodules.mmpose.datawriter
 
-        radius = parameters.radius
-        kpt_thr = parameters.kpt_thr
-        draw_heatmap = parameters.draw_heatmap
-        thickness = parameters.thickness
-        alpha = parameters.alpha
-        skeleton_style = parameters.skeleton_style
-        
-        register_all_modules()
+            radius = parameters.radius
+            kpt_thr = parameters.kpt_thr
+            draw_heatmap = parameters.draw_heatmap
+            thickness = parameters.thickness
+            alpha = parameters.alpha
+            skeleton_style = parameters.skeleton_style
+            
+            register_all_modules()
 
-        _img = cv2.resize(cropped_img,(parameters.img_size_w, parameters.img_size_h))
+            _img = cv2.resize(cropped_img,(parameters.img_size_w, parameters.img_size_h))
 
-        # please prepare an image with person
-        results = inference_topdown(model, _img)
-        #print(type(results[0]))
-        #print(len(results))
-        #print('-Pose estimated-')
+            # please prepare an image with person
+            results = inference_topdown(model, _img)
+            #print(type(results[0]))
+            #print(len(results))
+            #print('-Pose estimated-')
 
-        outputs.append(results)
+            outputs.append(results)
+        else:
+            outputs.append([])
 
     return outputs
 
