@@ -15,7 +15,7 @@ def get_image_list(path):
     return img_list
 
 def main_init(cfg):
-    dataloader = cfg.submodules.mmpose.dataloader
+    dataloader = cfg.models.mmpose.dataloader
 
     cfg_options = dict(model=dict(test_cfg=dict(output_heatmaps=True)))
     config_file = dataloader.config_file
@@ -34,8 +34,8 @@ def main_eval(cfg, model, img, bboxes):
         if all(i >= 0 for i in bbox):
             cropped_img = img[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])]
 
-            parameters = cfg.submodules.mmpose.parameters
-            datawriter = cfg.submodules.mmpose.datawriter
+            parameters = cfg.models.mmpose.parameters
+            datawriter = cfg.models.mmpose.datawriter
 
             radius = parameters.radius
             kpt_thr = parameters.kpt_thr
@@ -62,9 +62,9 @@ def main_eval(cfg, model, img, bboxes):
 
 def main(cfg):
 
-    parameters = cfg.submodules.mmpose.parameters
-    dataloader = cfg.submodules.mmpose.dataloader
-    datawriter = cfg.submodules.mmpose.datawriter
+    parameters = cfg.models.mmpose.parameters
+    dataloader = cfg.models.mmpose.dataloader
+    datawriter = cfg.models.mmpose.datawriter
 
     radius = parameters.radius
     kpt_thr = parameters.kpt_thr
