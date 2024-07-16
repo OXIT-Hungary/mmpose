@@ -3,6 +3,9 @@ import mmcv
 import mmengine
 from mmengine.utils import digit_version
 
+from .test_hrnet_wp import main_init
+from .test_hrnet_wp import main_eval
+
 from .version import __version__, short_version
 
 mmcv_minimum_version = '2.0.0rc4'
